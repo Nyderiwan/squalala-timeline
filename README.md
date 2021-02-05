@@ -1,2 +1,4 @@
-# squalala-timeline
-Squalala Memory Timeline Game
+# Squalala Memory Timeline Game
+
+cd st-socket 
+npm run blyy
