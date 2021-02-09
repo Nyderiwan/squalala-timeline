@@ -28,14 +28,12 @@
 	*/
 
 // TIMER - temps en seconde
-	let gameTimer = new Timer({
+	let lobbyTimer = new Timer({
 		ontick : function(ms) {
-			// let sec = Math.floor((ms/1000) % 60);
-			// io.to('screen').emit('timerTick', sec);
+			io.to('players').emit('startGame', true);
 		},
 		onend : function() {
-			// io.to(admin_id).emit('end_timer');
-			// io.to('players').emit('end_round')
+			GAME.startGame()
 		}
 	});
 
@@ -67,7 +65,7 @@
 					'log': log, 		// phrase 
 					'player': player, 	// nom du joueur
 					'card': card, 		// nom de la carte
-					'type': type 		// 0 - neutre / 1 - good / 2 - wrong / 3 - LAST ROUND
+					'type': type 		// 0 - neutre / 1 - good / 2 - wrong / 3 - LAST ROUND / 4 - Next ROUND
 				})
 			}
 		}
@@ -109,6 +107,7 @@
 				}
 				this.playersOrder = UTILITIES.shuffle(tmpPlayers)
 				this.currentPlayer = this.playersOrder[0].id
+				UTILITIES.addHistory('Le premier joueur est', this.list[this.currentPlayer].pseudo, null, 4)
 			},
 			// Set Next Player
 			async next(){
@@ -119,6 +118,7 @@
 					if(nxt > max) nxt = 0
 				this.currentPlayer = this.playersOrder[nxt].id
 
+				UTILITIES.addHistory('C\'est au tour de', this.list[this.currentPlayer].pseudo, null, 4)
 			}
 		}
 
@@ -132,9 +132,18 @@
 			lastTurn: false,
 			testLobby: function(){
 				let test = Object.keys(PLAYERS.list).every((el) => PLAYERS.list[el].ready === true)
-				if(test && Object.keys(PLAYERS.list).length > 1) this.startGame()
+				if(test && Object.keys(PLAYERS.list).length > 1){
+					lobbyTimer.start(5)	
+					io.to('players').emit('startingsoon', true);
+				}else{
+					io.to('players').emit('startingsoon', false);
+					lobbyTimer.stop()
+				}
 			},
 			startGame: function(){
+				// Clean timer
+				lobbyTimer.stop()
+				// set State
 				this.state = 1
 				// ~ Log
 				UTILITIES.addHistory('La partie commence !', null, null, 0)
@@ -154,7 +163,13 @@
 				return this.updateGame()
 			},
 			updateGame: function(){
-				io.to('players').emit('updateGame', CARDS.boardgame, GAME.history, PLAYERS.currentPlayer, PLAYERS.list)
+				io.to('players').emit('updateGame', {
+					boardcards: CARDS.boardgame, 
+					history: GAME.history, 
+					currentPlayer: PLAYERS.currentPlayer, 
+					players: PLAYERS.list,
+					discard: CARDS.discardPile
+				})
 			},
 			end: function(){
 				io.to('players').emit('endGame', PLAYERS.list)
@@ -213,22 +228,12 @@
 					this.lib[tmpID] = c
 				})
 
-
-
 				// set board START Card
-				let y = 4
-				while(y > 0){
-					let startCard = this.drawOne()
-					this.boardgame.push(startCard)
-					this.correctOrder.push(startCard.id)
-					// ~ Log
-					UTILITIES.addHistory('La première carte est', null, startCard.name, 0)
-
-					y--
-				}
-				
-				
-				
+				let startCard = this.drawOne()
+				this.boardgame.push(startCard)
+				this.correctOrder.push(startCard.id)
+				// ~ Log
+				UTILITIES.addHistory('La première carte est', null, startCard.name, 0)
 			},
 			// draw a card
 			drawOne: function(){
@@ -309,7 +314,6 @@
 				// Send new cards to player
 				io.to(idPlayer).emit('playerCards', PLAYERS.list[idPlayer].cards)
 				
-
 				if(test){
 					GAME.nextRound()
 				}
@@ -361,69 +365,51 @@
 
 	io.on('connection', function(socket) {
 
-		// --- TEST DEV Function ---
-		if(GAME.state === 0){
-			socket.join('players')
-			PLAYERS.connection('Blyy', socket.id)
-			GAME.startGame()
-		}else{
-			socket.join('players')
-			PLAYERS.connection('PereKastor', socket.id)
-			socket.emit('updateGame', CARDS.boardgame, GAME.history, PLAYERS.currentPlayer, PLAYERS.list)
-			socket.emit('startGame', true);
-		}
-		// -------------------------
-
 		// Connexion
-		/*
-			- GOOD Funct -
 			socket.on('connection', (pseudo) => {
 				if(pseudo.length > 2 && pseudo.length < 15){
 					socket.join('players')
 					PLAYERS.connection(pseudo, socket.id)
 				}
 			})
-		*/
 			
 		// Player RECONNECTION
-			/*
-				socket.on('customReconnect', function(previousId){
-					if(previousId in playersDisconnect){
+			socket.on('customReconnect', function(previousId){			
+				if(GAME.state == 1 & previousId in PLAYERS.listDisconnect){
 
-						PLAYERS.list[socket.id] = PLAYERS.listDisconnect[previousId]
-						PLAYERS.list[socket.id].id = socket.id
+					PLAYERS.list[socket.id] = PLAYERS.listDisconnect[previousId]
+					PLAYERS.list[socket.id].id = socket.id
 
-						delete PLAYERS.listDisconnect[previousId];
-						PLAYERS.updatePlayersList()
+					delete PLAYERS.listDisconnect[previousId];
+					PLAYERS.updatePlayersList()
 
-						socket.join('players')
-						socket.emit('reconnect_player', true)
-						socket.emit('buzzer_lock', buzzerLocked)
+					socket.join('players')
 
-						if(QUIZ.state == 1 && currentQuiz.currentRound >= 0){
-							socket.emit('next_round', currentQuiz)
-						}
+					UTILITIES.addHistory('s\'est reconnecté', PLAYERS.list[socket.id].pseudo , null, 0)
+					GAME.updateGame()
 
-					}else{
-						socket.emit('reconnect_player', false)
-					}
-				});
-			*/
+					socket.emit('reconnect_player', true)
+				}else{
+					socket.emit('reconnect_player', false)
+				}
+			})
 
 		//  LOBBY
 		
 			socket.on('ready', () => {
 				let temp = PLAYERS.list[socket.id].ready
 				PLAYERS.list[socket.id].ready = !temp
-				if(!temp) GAME.testLobby()
-
+				if(!temp){
+					GAME.testLobby()
+				}else{
+					lobbyTimer.stop()
+				}
 				PLAYERS.updatePlayersList()				
 			})
 
 		// PLAYED
 		
 			socket.on('played', (orderCards) => {
-				// test if it's player's round
 				if(socket.id == PLAYERS.currentPlayer)
 					CARDS.testCards(orderCards, socket.id)
 			})
@@ -431,18 +417,23 @@
 		// DECONNEXION
 
 			socket.on('disconnect', () => {
-
 				if(socket.id in PLAYERS.list){
+					// Add history entry if game is running
+					if(GAME.state == 1){
+						UTILITIES.addHistory('s\'est deconnecté', PLAYERS.list[socket.id].pseudo , null, 0)
+						GAME.updateGame()
+					}
+
 					PLAYERS.listDisconnect[socket.id] = PLAYERS.list[socket.id]
 					delete PLAYERS.list[socket.id];
 					PLAYERS.updatePlayersList();
 				}
-
 				GAME.testReset();
-			});
+			})
 
 	});
 
 
 // Listen the Server - port 3001
 	server.listen(3001)
+

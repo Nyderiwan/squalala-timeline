@@ -1,13 +1,12 @@
 <template>
 	<div id="game_app">
-
 		<div id="header" :class="{myturn: isItMyTurn}">
 			<div class="logo">
 				<Svg name="logo"></Svg>
 			</div>
 
 			<div class="players">
-				<div v-for="player in players" @click="showPlayerCards" class="player_item"
+				<div v-for="player in players" @click="showPlayerCards(player.id)" class="player_item"
 				:class="{playing : player.id==currentPlayer, you : player.id==myId}" >					
 					<div class="player_inner">						
 						<div class="pseudo">{{ player.pseudo }}</div>
@@ -18,9 +17,9 @@
 		</div>
 
 		<div id="middle">
-			<div id="game_board_wrapper">
+			<div id="game_board_wrapper" class="horizon_scroll">
 				<div id="game_board" :key="renderKey">
-					<Card v-for="card in boardCards" :card="card" reveal @zoomcard="zoomCard"></Card>
+					<Card v-for="card in boardCards" :card="card" reveal @zoomcard="zoomCard" :key="card.id"></Card>
 				</div>
 			</div>
 		</div>
@@ -29,24 +28,23 @@
 
 			<div id="history">
 				<header class="history_head">Historique</header>
-				<div class="history_inner">
+				<div id="history_inner">
 					<div v-for="log in history" class="log_item" :class="'log_'+log.type">
-						<span class="player">{{ log.player }}</span>
+						<span class="player" v-show="log.player !== null">{{ log.player }}</span>
 						<span class="log">{{ log.log }}</span>
-						<span class="card">{{ log.card }}</span>
+						<span class="card" v-show="log.card !== null">{{ log.card }}</span>
 					</div>
 				</div>
 			</div>
 
 			<div id="bottom_right">
 
-				<button class="discard_btn" @click="showDiscard" >
+				<button class="discard_btn" @click="showDiscard" v-show="discard.length">
 					<Svg name="skull"></Svg>
 				</button>
 				
 				<div id="game_tools" v-if="isItMyTurn">
 					<h3>C'est ton tour !</h3>
-
 					<div class="place_btns" v-if="placeCard">
 						<button class="validate_btn" @click.prevent="validate">Valider</button>
 						
@@ -54,50 +52,48 @@
 							<Svg name="reset"></Svg>
 						</button>
 					</div>
-					
 				</div>
 				
 				<h2 class="mycards_title">Vos souvenirs à placer</h2>
 
-				<div id="my_cards_wrap">
+				<div id="my_cards_wrap" class="horizon_scroll">
 					<div id="my_cards" :key="renderKey">
-						<Card v-for="card in myCards" :card="card" @zoomcard="zoomCard"></Card>
+						<Card v-for="card in myCards" :card="card" @zoomcard="zoomCard" :key="card.id"></Card>
 					</div>
 				</div>
 
 			</div>
 		</div>
 
-	</div>
+		<Popup v-if="popUp.show && popUp.card != null" 
+			:card="popUp.card"
+			:reveal="popUp.reveal"
+			:close="closePopup"
+		></Popup>
 
-	<div id="popup" :class="{reveal: popUp.reveal}"	v-if="popUp.card != null" v-show="popUp.show" @click="closePopup">
-		<div class="polaroid">
-			
-			<div class="image">
-				<!-- <img :src="popUp.card.image"> -->
-				<img src="https://www.ecranlarge.com/media/cache/1600x1200/uploads/image/001/175/star-wars-lascension-de-skywalker-affiche-saga-1175304.jpg">
-			</div>
-
-			<div class="content">
-				<div class="name">{{ popUp.card.name }}</div>
-				
-				<template v-if="popUp.reveal">
-					<div class="date">{{ popUp.card.date_text }}</div>
-					<div class="info">{{ popUp.card.date_info }}</div>
-				</template>
-			</div>
-
+		<div id="discard_pile" v-if="discard.length" :class="{open: show_discardPile}">
+			<Card v-for="discard in lastDiscards" :card="discard" reveal @zoomcard="zoomCard"></Card>
+			<div class="discard_title">Défausse</div>
 		</div>
-	</div>
 
+		<div id="player_pile" v-if="playerStack.cards.length" :class="{open: show_playerPile}">
+			<div class="playerCards_title">Cartes de {{ playerStack.pseudo }}</div>
+			<div class="player_stack_wrapper">
+				<Card v-for="card in playerStack.cards" :card="card" @zoomcard="zoomCard"></Card>
+			</div>
+		</div>
+		
+		<div class="overlay" @click="closeAddPanel" v-show="show_overlay"></div>
+	</div>
 </template>
 
 <script>
 	import Card from './Card.vue'
+	import Popup from './PopUp.vue'
 	import $ from "jquery"
 	import Sortable from 'sortablejs'
 
-	let socket, _this
+	let socket, _this, shouldScroll = false
 
 	let sound = new Audio('https://www.zapsplat.com/wp-content/uploads/2015/sound-effects-55112/zapsplat_multimedia_game_sound_high_pitched_generic_tone_digital_003_61659.mp3')
 		sound.volume = 0.5;
@@ -108,6 +104,7 @@
 			myCards: Array,
 			boardCards: Array,
 			history: Array,
+			discard: Array,
 			currentPlayer: String
 		},
 		data() {
@@ -118,11 +115,23 @@
 				placeCard: false,
 				BOARDSTACK: null,
 				PLAYERSTACK: null,
+				playerStack: {
+					pseudo: '',
+					cards: []
+				},
 				popUp:{
 					show: true,
 					card: null,
 					reveal : false
 				},
+				show_discardPile: false,
+				show_overlay: false,
+				show_playerPile: false
+			}
+		},
+		computed: {
+			lastDiscards: function(){
+				return this.discard.slice(-3)
 			}
 		},
 		methods: {
@@ -197,28 +206,38 @@
 				this.popUp.card = card
 				this.popUp.reveal = reveal
 				this.popUp.show = true
-
-				setTimeout(function(){
-					let tmpW = $('.polaroid .image img').width() + 60
-					if(!isNaN(tmpW) && tmpW > 0 ){
-						$('.polaroid').css('width', tmpW);
-					}
-				}, 10);
 			},
 			closePopup(){
 				this.popUp.show = false
 			},
-			showPlayerCards(){
-				alert('test PLAYER\'s Cards')
+			showPlayerCards(id){
+				this.playerStack.pseudo = this.players[id].pseudo
+				this.playerStack.cards = this.players[id].cards
+				this.show_playerPile = true
+				this.show_overlay = true
 			},
 			showDiscard(){
-				alert('test DISCARD')
+				this.show_discardPile = true
+				this.show_overlay = true
+			},
+			closeAddPanel(){
+				this.show_discardPile = false
+				this.show_playerPile = false
+				this.show_overlay = false
+			},
+			scrollLogs(){
+				let tar = document.getElementById('history_inner')
+				tar.scrollTop = tar.scrollHeight
+				shouldScroll = false
 			}
 		},
 		created(){
 			socket = this.$socket
 			_this = this
 			this.myId = socket.id
+		},
+		unmounted(){
+			this.destroySortable()
 		},
 		watch: {
 			boardCards: function(newVal, oldVal){
@@ -231,7 +250,15 @@
 				}else{
 					this.isItMyTurn = false
 				}
+			},
+			history: function(newVal, oldVal){
+				if(newVal != oldVal){
+					shouldScroll = true
+				}
 			}
+		},
+		updated: function(){
+			if(shouldScroll) this.scrollLogs()
 		},
 		mounted(){
 			// if you're the start player
@@ -239,19 +266,20 @@
 
 			this.initSortable()
 
-			$(document).on("mousemove",function(e){
-				var ax = -($(window).innerWidth()/4- e.pageX)/150;
-				var ay = ($(window).innerHeight()/4- e.pageY)/150;
-				$(".polaroid").css({
-					'transform': '"transform: translateX(-50%) rotateY("+ax+"deg) rotateX("+ay+"deg)',
-					'-webkit-transform': "translateX(-50%) rotateY("+ax+"deg) rotateX("+ay+"deg)",
-					'-moz-transform': "translateX(-50%) rotateY("+ax+"deg) rotateX("+ay+"deg)",
-				});
-			});
+			let scrollForce = 40
+			$('.horizon_scroll').on('wheel', function(e) {
+				if(e.originalEvent.deltaY > 0) this.scrollLeft += scrollForce
+				else this.scrollLeft -= scrollForce
+			})
 		},
 		components: {
-			Card
+			Card,
+			Popup
 		}
 	}
 
 </script>
+
+<style lang="less">
+	@import "../assets/css/style-game.less";
+</style>

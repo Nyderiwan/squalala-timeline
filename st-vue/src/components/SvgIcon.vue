@@ -10,6 +10,7 @@
 	import polaroid from "./svg/polaroid.vue"
 	import reset from "./svg/reset.vue"
 	import plus from "./svg/plus.vue"
+	import cup from "./svg/cup.vue"
 
 	export default {
 		props: {
@@ -22,15 +23,8 @@
 			logo, 
 			polaroid, 
 			reset,
-			plus
+			plus,
+			cup
 		},
 	}
 </script>
-
-<style scoped>	
-	svg{
-		width: 150px;
-		height: auto;
-		fill:#000;
-	}
-</style>

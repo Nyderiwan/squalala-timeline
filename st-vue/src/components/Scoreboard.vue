@@ -1,5 +1,5 @@
 <template>
-	<div>
+	<div id="scoreboard">
 		<h2>GG les boloss</h2>
 		<div class="score_list">
 			<div class="player_item" v-for="player in orderedPlayers">
@@ -9,8 +9,20 @@
 					<hr>
 			</div>
 		</div>
+		<button @click="backtoLobby">Retourner au lobby</button>
+
+		<div id="history">
+			<header class="history_head">Historique</header>
+			<div id="history_inner">
+				<div v-for="log in history" class="log_item" :class="'log_'+log.type">
+					<span class="player" v-show="log.player !== null">{{ log.player }}</span>
+					<span class="log">{{ log.log }}</span>
+					<span class="card" v-show="log.card !== null">{{ log.card }}</span>
+				</div>
+			</div>
+		</div>
+			
 	</div>
-	<button @click="backtoLobby">Retourner au lobby</button>
 </template>
 
 
@@ -19,7 +31,8 @@
 
 	export default {
 		props: {
-			players: Object
+			players: Object,
+			history: Array
 		},
 		methods: {
 			backtoLobby(){
@@ -35,3 +48,7 @@
 		}
 	}
 </script>
+
+<style lang="less" scoped>
+	@import "../assets/css/style-scoreboard.less";
+</style>

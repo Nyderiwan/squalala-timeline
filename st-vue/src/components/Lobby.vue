@@ -1,31 +1,29 @@
 <template>
 	<div id="lobby">
-		
-		<img alt="Vue logo" src="https://pm1.narvii.com/6972/43bf0ef4cda1eae43d1e46db1519e7cb5f262636r1-500-375v2_00.jpg" /><br/>
 
-		<p>
-			<a href="https://vitejs.dev/guide/features.html" target="_blank">Vite Documentation</a> | 
-			<a href="https://v3.vuejs.org/" target="_blank">Vue 3 Documentation</a>
-		</p>
-
-		<h2>Hello <strong>{{ pseudo }}</strong></h2>
-
-		<div class="players_list">
-			<ul>
-				<li v-for="player in orderedPlayers">{{ player.pseudo }}
-					<span class="ready">
-						<span v-if="player.ready">Prêt</span>
-						<strong v-else>En attente</strong>
-					</span>
-				</li>
-			</ul>
+		<header>
+			<Svg name="beer"></Svg>
+			<h2>Lobby</h2>
+		</header>
+		<div class="container">
+			<div class="players_list">
+				<div v-for="player in orderedPlayers" class="player_item">
+					<div class="pseudo">{{ player.pseudo }}</div>
+					<span class="ready" v-if="player.ready">Prêt</span>
+				</div>
+			</div>
+			<div class="right">	
+				<div class="logo_bg"><Svg name="logo"></Svg></div>
+				<div class="starting_soon" v-show="starting" :class="{starting: starting}">
+					<span>La partie va bientôt commencer</span>
+				</div>
+			</div>		
+			<div class="bottom">
+				<button @click.prevent="ready" :class="{ready : players[myId].ready}">{{ label_ready }}</button>
+			</div>
 		</div>
 
-		<div class="player_bloc">
-			<p><button @click.prevent="ready">{{ label_ready }}</button></p>
-		</div>
 	</div>
-
 </template>
 
 <script>
@@ -34,16 +32,25 @@
 	export default {
 		props: {
 			pseudo: String,
-			players: Object,
+			players: Object
+		},
+		data(){
+			return {
+				starting: false,
+				myId: this.$socket.id
+			}
 		},
 		mounted() {
+			this.$socket.on('startingsoon', (test) => {
+				this.starting = test
+			})
 		},
 		computed: {
 			label_ready: function(){
-				let tmp = 'Ready ?'
+				let tmp = 'Je suis un lulu prêt'
 				if(this.players[this.$socket.id].ready){
-					tmp = 'I\'m not ready'
-				}				
+					tmp = 'Hum finalement non !'
+				}
 				return tmp 
 			},
 			orderedPlayers: function() {
@@ -56,32 +63,9 @@
 			}
 		}
 	}
+
 </script>
 
-
-<style lang="less">	
-	#test_drag{
-		position: fixed;
-		left: 150px;
-		bottom:0;
-
-		height: 150px;
-		width: 100px;
-
-		touch-action: none;
-		padding: 30px;
-		background: white;
-		border: solid 2px grey;
-
-		padding-top:30px;
-
-		.handle{
-			position:absolute;
-			top: 0;
-			left: 0;
-			width: 100%;
-			background:red;
-			height: 25px;
-		}
-	}
+<style lang="less" scoped>
+	@import "../assets/css/style-lobby.less";
 </style>

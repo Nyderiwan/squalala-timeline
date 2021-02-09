@@ -12,10 +12,9 @@
 		</div>
 
 		<template v-if="reveal">
-			<div class="position">{{ card.position }}</div>
+			
 			<div class="reveal_content">
-				<span class="date">{{ card.date_text }}</span>
-				<span class="info">{{ card.date_info }}</span>
+				<span class="date">{{ card.date_text }}</span>				
 			</div>
 		</template>
 
@@ -42,4 +41,15 @@
 			}
 		}
 	}
+	// @import "../assets/css/style-game.less";
+
+
+	/*
+		<span class="info">{{ card.date_info }}</span>
+		<div class="position">{{ card.position }}</div>
+
+	*/
 </script>
+
+<style lang="less" scoped>
+</style>

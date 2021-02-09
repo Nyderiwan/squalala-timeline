@@ -3,3 +3,4 @@ st-socket/package-lock.json
 st-vue/node_modules
 st-vue/package-lock.json
 st-vue/dist
+st-vue/public

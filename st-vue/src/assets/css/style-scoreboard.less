@@ -1,0 +1,101 @@
+@import "init.less";
+
+// SOREBOARD
+
+#scoreboard{
+
+	#history{
+		flex: 0 1 (100%/3);
+		min-width: 40%;
+		height: 100%;
+		background:#eef6fb;
+		border-right:solid 2px @purple;
+		display: flex;
+		flex-direction: column;
+		user-select:none;
+
+		.history_head{
+			background:@purple;
+			width: 100%;
+			padding:5px;
+			text-align: center;
+			.oswald(1.25rem, @white, 500);
+		}
+
+		#history_inner{
+			display: flex;
+			flex-direction: column;
+			overflow-y: scroll;
+			padding: 0 2px;
+			margin: 4px 2px 4px 0;
+
+			.log_item{
+				display: flex;
+				padding:4px 6px;
+				margin-bottom: 1px;
+
+				&.log_0{
+					background:@white;
+
+					span{
+						color: @grey;
+					}
+				}
+
+				&.log_1{
+					background:@good;
+				}
+				&.log_2{
+					background:@bad;
+				}
+				&.log_3{
+					background:@alert;
+				}
+				&.log_4{
+					.player{
+						order:10;
+					}
+					.card{
+						display: none;
+					}
+				}
+
+				&.log_1, &.log_2, &.log_3{
+					span{
+						color: @white;
+					}
+				}
+
+				span{
+					.oswald(0.95rem, @grey);
+					line-height: 1.25;
+					margin-right: 6px;
+
+					&.player, &.card{
+						font-weight: 600;
+					}
+				}
+			}
+
+
+			// Scroll-bar
+
+				&::-webkit-scrollbar {
+					width: 3px;
+					background: transparent;
+					cursor: pointer;
+				}
+				&::-webkit-scrollbar-thumb {
+					background: @purple;
+					.transition(0.25s);
+				}
+
+				&::-webkit-scrollbar-thumb:hover {
+					background: @purpledark;
+				}
+		}
+	}
+
+
+
+}

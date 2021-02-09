@@ -1,52 +1,6 @@
+@import "./base.less";
 
-// VARIABLES & FONTS & FUNCTIONS
-// -------
 
-	@black:#000;
-	@white:#fff;
-	@grey:#191919;
-
-	@purple:#814da6;
-		@purpledark:#653c82;
-		@purple_alt:#681ba6;
-
-	@green:#00ffbb;
-		@greendark:#00ae80;
-
-	@good:#00ed7b;
-	@bad:#c70348;
-	@alert:#eba102;
-
-	.transition(@t: 0.5s){
-		transition-duration: @t;
-		transition-property: all;
-		transition-timing-function: ease-out;
-	}
-
-	// font-family: 'Londrina Solid', cursive;
-	// Light 300 • Regular 400
-
-	// font-family: 'Oswald', sans-serif;
-	// Extra-light 200 • Light 300 • Regular 400 • Medium 500 • Semi-bold 600 • Bold 700
-		
-	.oswald(@s:1rem, @c:@grey, @w:400){
-		font-family: 'Oswald', sans-serif;
-		font-size: @s;
-		color:@c;
-		font-weight:@w;	
-	}
-
-	.londrina(@s:1rem, @c:@purple, @w:400){
-		font-family: 'Londrina Solid', cursive;
-		font-size: @s;
-		color:@c;
-		font-weight:@w;
-	}
-
-	@keyframes gradiantscroll {
-		0%{background-position:0% 50%}
-		100%{background-position:100% 50%}
-	}
 
 // INIT
 
@@ -960,6 +914,7 @@
 			background: white;
 			border-radius: 3px;
 			width: 90%;
+			min-width: 25%;
 			max-width: 1500px;
 			transform-style: preserve-3d;
 			backface-visibility: hidden;

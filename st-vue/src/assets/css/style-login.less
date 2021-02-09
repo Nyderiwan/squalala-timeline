@@ -1,0 +1,123 @@
+@import "init.less";
+
+// LOGIN
+
+#login{
+	display: flex;
+	flex-direction:column;
+	align-items:center;
+	justify-content: center;
+	background:@green;
+
+	video{
+		position: absolute;
+		top: @margExt;
+		right: @margExt;
+		bottom: @margExt;
+		left: @margExt;
+		width: calc(100% - (2*@margExt));
+		height: calc(100% - (2*@margExt));
+		z-index: 0;
+		display: block;
+		object-fit: cover;
+		object-position: center;
+		mix-blend-mode: soft-light;
+		user-select: none;
+		pointer-events: none;
+	}
+
+	#login_bloc{
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		align-items: center;
+		width: 60vh;
+		height: 60vh;
+		padding: 0;
+		background:fade(@grey, 30%);
+		border-radius: 10px;
+		overflow: hidden;
+
+		.header_logo{
+			width: 350px;
+			max-width: 90%;
+			margin:0px auto 30px;
+
+			svg{
+				display: block;
+				width: 100%;
+				height: auto;
+				fill: @white;
+				filter:drop-shadow(0 0 10px @green);
+				.transition(0.5s);
+			}
+			&:hover svg{
+				transform: translateY(-5px) scale(1.02);
+				filter:drop-shadow(0 10px 5px darken(@greendark, 8%));
+			}			
+		}
+
+		form.login{
+			width: 100%;
+			max-width: 300px;
+			text-align: center; 
+
+			input{
+				display: block;
+				width: 100%;
+				padding:10px;
+				border:none;
+				border-radius:10px;
+				.oswald(1.25rem, @purpledark, 500);
+				text-shadow: 0 0 2px @purple;
+				text-align: center;
+				letter-spacing: 1px;
+				margin-bottom:12px;
+
+				&:focus, &:active{
+					border-color:@purple;
+					outline: none;
+
+				}
+
+				&::placeholder{
+					.oswald(1.25rem, lighten(@grey, 50%), 400);
+					font-style: italic;
+					text-shadow: none;
+				}
+			}
+
+			button{
+				display: inline-block;
+				width: 100%;
+				padding:10px 20px;
+				background:@purple;
+				.londrina(1.75rem, @white);
+				text-transform: uppercase;
+				text-align: center;
+				text-shadow: 0 4px 2px @purpledark;
+
+				transform: translateY(-3px);
+				border-radius:8px;
+				box-shadow:0 6px 0 0 @purpledark;
+				cursor: pointer;
+				.transition(0.25s);
+
+				&:active{
+					background:@purpledark;
+					text-shadow: 0 3px 0px darken(@purpledark, 8%);
+					box-shadow:0 6px 0 0 darken(@purpledark, 8%);
+				}
+
+				&:hover{
+					transform: translateY(0);
+					box-shadow:0 3px 0 0 @purpledark;
+				}
+
+			
+
+			}
+		}		
+	}
+
+}
