@@ -53,14 +53,22 @@
 						</button>
 					</div>
 				</div>
-				
-				<h2 class="mycards_title">Vos souvenirs à placer</h2>
 
-				<div id="my_cards_wrap" class="horizon_scroll">
-					<div id="my_cards" :key="renderKey">
-						<Card v-for="card in myCards" :card="card" @zoomcard="zoomCard" :key="card.id"></Card>
+				<template v-if="isPlayer">
+					<h2 class="mycards_title">Vos souvenirs à placer</h2>
+
+					<div id="my_cards_wrap" class="horizon_scroll">
+						<div id="my_cards" :key="renderKey">
+							<Card v-for="card in myCards" :card="card" @zoomcard="zoomCard" :key="card.id"></Card>
+						</div>
 					</div>
-				</div>
+				</template>
+
+				<template v-else>
+					<div class="spectator_info">
+						<h2>Vous êtes spectateur de la partie</h2>
+					</div>
+				</template>
 
 			</div>
 		</div>
@@ -76,10 +84,15 @@
 			<div class="discard_title">Défausse</div>
 		</div>
 
-		<div id="player_pile" v-if="playerStack.cards.length" :class="{open: show_playerPile}">
-			<div class="playerCards_title">Cartes de {{ playerStack.pseudo }}</div>
+		<div id="player_pile" v-if="playerCards.cards.length" :class="{open: show_playerPile}">
+			<div class="playerCards_title">Cartes de {{ playerCards.pseudo }}</div>
 			<div class="player_stack_wrapper">
-				<Card v-for="card in playerStack.cards" :card="card" @zoomcard="zoomCard"></Card>
+				<Card 
+					v-for="card in playerCards.cards" 
+					:card="card" 
+					@zoomcard="zoomCard"
+					:style="randomDeg"
+				></Card>
 			</div>
 		</div>
 		
@@ -115,7 +128,7 @@
 				placeCard: false,
 				BOARDSTACK: null,
 				PLAYERSTACK: null,
-				playerStack: {
+				playerCards: {
 					pseudo: '',
 					cards: []
 				},
@@ -132,6 +145,17 @@
 		computed: {
 			lastDiscards: function(){
 				return this.discard.slice(-3)
+			},
+			isPlayer: function(){
+				if(this.myId in this.players){
+					return true
+				}
+				return false
+			},
+			randomDeg: function(){
+				let max = 20
+				let rand = Math.ceil(Math.random() * max) * (Math.round(Math.random()) ? 1 : -1)
+        		return { transform: 'rotate(' + rand + 'deg)'}
 			}
 		},
 		methods: {
@@ -150,23 +174,25 @@
 					handle: '.card_handle'
 				});
 
-				this.PLAYERSTACK = Sortable.create(document.getElementById('my_cards'), {
-					group: 'shared',
-					dataIdAttr: 'data-card-id',
-					direction: 'horizontal',
-					swapThreshold: 0.5,
-					forceFallback: true,
-					dragoverBubble: true,
-					handle: '.card_handle',
-					onStart: function() {
-						let tmpW = $('#history').width() + 2;
-        				$('#history').css('max-width', tmpW);
-					},
-					onEnd: function (evt) {
-						$('#history').css('max-width', '');
-						if(evt.to.id=="game_board") _this.play()
-					}
-				});
+				if(_this.isPlayer){
+					this.PLAYERSTACK = Sortable.create(document.getElementById('my_cards'), {
+						group: 'shared',
+						dataIdAttr: 'data-card-id',
+						direction: 'horizontal',
+						swapThreshold: 0.5,
+						forceFallback: true,
+						dragoverBubble: true,
+						handle: '.card_handle',
+						onStart: function() {
+							let tmpW = $('#history').width() + 2;
+							$('#history').css('max-width', tmpW);
+						},
+						onEnd: function (evt) {
+							$('#history').css('max-width', '');
+							if(evt.to.id=="game_board") _this.play()
+						}
+					});
+				}
 
 				if(this.isItMyTurn) this.BOARDSTACK.option("disabled", false);
 
@@ -176,7 +202,7 @@
 				this.renderKey += 1;
 
 				return new Promise(function(resolve, reject) {
-					_this.PLAYERSTACK.destroy()
+					if(_this.isPlayer) _this.PLAYERSTACK.destroy()
 					_this.BOARDSTACK.destroy()
 					resolve(true)
 				});
@@ -211,10 +237,14 @@
 				this.popUp.show = false
 			},
 			showPlayerCards(id){
-				this.playerStack.pseudo = this.players[id].pseudo
-				this.playerStack.cards = this.players[id].cards
+				this.playerCards.pseudo = this.players[id].pseudo
+				this.playerCards.cards = this.players[id].cards
 				this.show_playerPile = true
 				this.show_overlay = true
+
+				setTimeout(function(){ 
+					$('#player_pile .card_item').addClass('transition')
+				}, 200);
 			},
 			showDiscard(){
 				this.show_discardPile = true
@@ -224,6 +254,8 @@
 				this.show_discardPile = false
 				this.show_playerPile = false
 				this.show_overlay = false
+
+				$('#player_pile .card_item').removeClass('transition')
 			},
 			scrollLogs(){
 				let tar = document.getElementById('history_inner')

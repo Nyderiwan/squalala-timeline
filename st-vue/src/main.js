@@ -17,7 +17,8 @@ import Svg from './components/SvgIcon.vue'
 const app = createApp(App)
 
 	app.component('Svg', Svg)
-
 	app.config.globalProperties.$socket = socket
 	app.config.globalProperties.$jquery = jQuery
 	app.mount('#app')
+
+

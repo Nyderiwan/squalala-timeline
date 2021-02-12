@@ -4,7 +4,6 @@
 
 #login{
 	display: flex;
-	flex-direction:column;
 	align-items:center;
 	justify-content: center;
 	background:@green;
@@ -31,8 +30,11 @@
 		flex-direction: column;
 		justify-content: center;
 		align-items: center;
-		width: 60vh;
-		height: 60vh;
+
+		flex: 0 1 600px;
+		height: 600px;
+		max-height: 100%;
+
 		padding: 0;
 		background:fade(@grey, 30%);
 		border-radius: 10px;
@@ -68,7 +70,7 @@
 				padding:10px;
 				border:none;
 				border-radius:10px;
-				.oswald(1.25rem, @purpledark, 500);
+				.oswald(1.5rem, @purpledark, 500);
 				text-shadow: 0 0 2px @purple;
 				text-align: center;
 				letter-spacing: 1px;
@@ -85,6 +87,21 @@
 					font-style: italic;
 					text-shadow: none;
 				}
+			}
+
+			.error{
+				opacity: 0.85;
+				background: fade(@bad, 85%);
+				border: solid 1px @green;
+				border-radius: 15px;
+				box-shadow: inset 0px 3px 5px fade(@black, 50%);
+				margin-bottom: 1rem;
+				padding:10px;
+				.oswald(1.15rem, @white, 300);
+				text-shadow: 0 2px 2px darken(@bad, 20%);
+				text-align: center;				
+				user-select: none;
+				pointer-events:none;
 			}
 
 			button{
@@ -113,11 +130,42 @@
 					transform: translateY(0);
 					box-shadow:0 3px 0 0 @purpledark;
 				}
-
-			
-
 			}
-		}		
+		}
+
+		.spect_btn{
+			display: inline-block;
+			margin-top: 15px;
+			padding:8px;
+			background:none;
+			.londrina(1.75rem, @white);
+
+			text-shadow: 0 1px 2px @purple;
+
+			cursor: pointer;
+			.transition(0.25s);
+
+			.oswald(1rem, @purpledark);
+			letter-spacing: 1px;
+
+			span{
+				opacity: 0;
+				margin-left: -15px;
+				.transition(0.35s);
+			}
+
+			&:hover{
+				color:@white;
+				text-shadow: 0 1px 2px @grey;
+
+				span{
+					opacity: 1;
+					    margin-left: 0px;
+				}
+			}
+		}
+
+
 	}
 
 }

@@ -1,6 +1,8 @@
+st-socket/cards
 st-socket/node_modules
 st-socket/package-lock.json
 st-vue/node_modules
 st-vue/package-lock.json
 st-vue/dist
-st-vue/public
+st-vue/public/*.mov
+st-vue/public/*.mp4

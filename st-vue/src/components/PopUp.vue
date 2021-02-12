@@ -2,21 +2,19 @@
 	<div id="popup" :class="{reveal: reveal}" @click="close">
 		<div class="polaroid">			
 			<div class="image">
-				<img :src="card.image">
+				<img :src="image_url">
+				<!-- <img :src="card.image"> -->
 			</div>
-			<div class="content">
+			<div class="content" v-if="reveal">
 				<div class="name">{{ card.name }}</div>
-				
-				<template v-if="reveal">
-					<div class="date">{{ card.date_text }}</div>
-					<div class="info">{{ card.date_info }}</div>
-				</template>
+				<div class="date">{{ date_format }}</div>
 			</div>
 		</div>
 	</div>
 </template>
 
 <script>
+
 	import $ from "jquery"
 
 	export default {
@@ -38,6 +36,15 @@
 						clearInterval(this.sizeInterval);
 					}
 				}, 25);
+		},
+		computed: {
+			date_format: function() {
+				let tmpdate = new Date(this.card.date)
+				return tmpdate.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })
+			},
+			image_url: function(){
+				return 'http://localhost:3001/' + this.card.image
+			}
 		},
 		unmounted(){
 			clearInterval( this.sizeInterval )

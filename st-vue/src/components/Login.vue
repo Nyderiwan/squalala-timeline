@@ -22,13 +22,15 @@
 					autocomplete="false"
 					spellcheck="false"
 				/>
-				<div class="error" v-show="!errorMsg.length">{{ errorMsg }}</div>
+				<div class="error" v-show="errorMsg.length > 0">{{ errorMsg }}</div>
 				<button @click.prevent="connecting">Connexion</button>
 			</form>
 
 			<div class="reconnect_loading" v-else>
 				<h2>CHARGEMENT</h2>
 			</div>
+
+			<button class="spect_btn" @click="spectator">Je veux juste regarder <span>😎</span></button>
 		</div>
 		
 	</div>
@@ -55,7 +57,11 @@
 				}else{
 					if(tmpPseudo.length < 3) this.errorMsg = "Pseudo trop court :("
 					if(tmpPseudo.length > 15) this.errorMsg = "Pseudo trop long :("
+					this.$refs.pseudo.focus()
 				}
+			},
+			spectator() {
+				this.$socket.emit('spectator')
 			}
 		},
 		mounted() {
