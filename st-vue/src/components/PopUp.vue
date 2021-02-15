@@ -3,7 +3,6 @@
 		<div class="polaroid">			
 			<div class="image">
 				<img :src="image_url">
-				<!-- <img :src="card.image"> -->
 			</div>
 			<div class="content" v-if="reveal">
 				<div class="name">{{ card.name }}</div>
@@ -43,7 +42,13 @@
 				return tmpdate.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })
 			},
 			image_url: function(){
-				return 'http://localhost:3001/' + this.card.image
+				if(import.meta.env.MODE === "development" ){
+					// DEV
+					return 'http://localhost:8082/' + this.card.image
+				}else{
+					// BUILD
+					return this.card.image
+				}
 			}
 		},
 		unmounted(){

@@ -3,7 +3,6 @@
 		
 		<div class="thumb_wrap">
 			<img :src="image_url">
-			<!-- <img :src="card.thumbnail"> -->
 		</div>
 		
 		<div class="card_handle"></div>
@@ -38,7 +37,13 @@
 				return tmpdate.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' })
 			},
 			image_url: function(){
-				return 'http://localhost:3001/' + this.card.thumbnail
+				if(import.meta.env.MODE === "development" ){
+					// DEV
+					return 'http://localhost:8082/' + this.card.thumbnail
+				}else{
+					// BUILD
+					return this.card.thumbnail
+				}
 			}
 		},
 		methods: {

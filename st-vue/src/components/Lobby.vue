@@ -11,6 +11,7 @@
 						<div class="pseudo">{{ player.pseudo }}</div>
 						<span class="ready" v-if="player.ready">Prêt</span>
 					</div>
+					<div class="no_players" v-show="noPlayer">Aucun joueur</div>
 				</div>
 				<div class="right">	
 					<div class="logo_bg"><Svg name="logo"></Svg></div>
@@ -61,6 +62,9 @@
 					return true
 				}
 				return false
+			},
+			noPlayer: function(){
+				return _.isEmpty(this.players)
 			}
 		},
 		methods: {

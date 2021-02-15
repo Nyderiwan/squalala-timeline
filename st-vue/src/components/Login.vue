@@ -3,7 +3,7 @@
 
 		<transition name="fading">
 			<video class="bg_video" v-show="loadingVideo" autoplay loop muted key="videowave">
-				<source src="/Abstract.mov" type="video/mp4">
+				<source src="https://squalala-timeline.tk/Abstract.mov" type="video/mp4">
 			</video>
 		</transition>
 

@@ -18,13 +18,18 @@
     });
 
 	app.use(express.static('cards'))
+	app.use(express.static('dist'))
 	app.use(bodyParser.urlencoded({extended: true}))
 	app.use(bodyParser.json())
 	
-
 	app.get('/', function(req, res){
-		res.send('Hello world');
+		res.sendFile(__dirname + '/dist/index.html');
 	});
+	
+	app.get('/admin/HARDreset', function(req, res){
+		resetGame()
+		res.sendFile(__dirname + '/dist/reset.html');
+	});	
 
 // Debug
 	// console.time('startFunction')
@@ -35,7 +40,13 @@
 		onend : function() {
 			GAME.startGame()
 		}
-	});
+	})
+
+	let disconnectTimer = new Timer({
+		onend : function() {
+			GAME.nextRound()
+		}
+	})
 
 	function lobbyRunner(run){
 		if(run){
@@ -128,7 +139,12 @@
 					if(nxt > max) nxt = 0
 				this.currentPlayer = this.playersOrder[nxt].id
 
-				UTILITIES.addHistory('C\'est au tour de', this.list[this.currentPlayer].pseudo, null, 4)
+				if(this.currentPlayer in PLAYERS.list){
+					UTILITIES.addHistory('C\'est au tour de', this.list[this.currentPlayer].pseudo, null, 4)
+					return true
+				}else{
+					this.next()
+				}
 			}
 		}
 
@@ -180,6 +196,7 @@
 				})
 			},
 			end: function(){
+				UTILITIES.addHistory('La partie est finie', null, null, 1)
 				io.to('players').emit('endGame', PLAYERS.list, this.history)
 				this.reset(false);
 				SPECTATOR.addToPlayers()
@@ -355,6 +372,9 @@
 			async playWrong(playerID, newCard){
 				// ~ Log
 				UTILITIES.addHistory('a mal placé', PLAYERS.list[playerID].pseudo, this.lib[newCard].name, 2)
+
+				if(GAME.lastTurn) return true
+					
 				// Draw a new card
 				let tmpCard = this.drawOne()
 				if(tmpCard !== null){
@@ -391,6 +411,7 @@
 				})
 			}
 		}	
+
 
 // SOCKET *******************************
 
@@ -433,6 +454,19 @@
 					socket.join('players')
 
 					UTILITIES.addHistory('s\'est reconnecté', PLAYERS.list[socket.id].pseudo , null, 0)
+	
+					if(PLAYERS.currentPlayer === previousId){
+						disconnectTimer.stop()
+						PLAYERS.currentPlayer = socket.id
+					}
+
+					// change ID in playerOrder
+					for(let x in PLAYERS.playersOrder){
+						if(PLAYERS.playersOrder[x].id === previousId){
+							PLAYERS.playersOrder[x].id = socket.id
+						}
+					}
+
 					GAME.updateGame()
 
 					socket.emit('reconnect_player', true)
@@ -441,8 +475,7 @@
 				}
 			})
 
-		//  LOBBY
-		
+		//  LOBBY		
 			socket.on('ready', () => {
 				let temp = PLAYERS.list[socket.id].ready
 				PLAYERS.list[socket.id].ready = !temp
@@ -466,6 +499,13 @@
 					// Add history entry if game is running
 					if(GAME.state == 1){
 						UTILITIES.addHistory('s\'est deconnecté', PLAYERS.list[socket.id].pseudo , null, 0)
+						
+						// test si c'est à lui de jouer - run timer
+						if(PLAYERS.currentPlayer === socket.id){
+							UTILITIES.addHistory('Son tour passera dans 45 secondes', null , null, 3)
+							disconnectTimer.start(45)
+						}
+
 						GAME.updateGame()
 					}
 
@@ -480,4 +520,4 @@
 
 
 // Listen the Server - port 3001
-	server.listen(3001)
+	server.listen(8082)
