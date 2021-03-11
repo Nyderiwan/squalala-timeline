@@ -1,0 +1,12 @@
+st-socket/cards
+st-socket/node_modules
+st-socket/package-lock.json
+st-socket/dist/*.mov
+st-socket/dist/*.mp4
+st-vue/node_modules
+st-vue/package-lock.json
+st-vue/dist
+st-vue/public/*.mov
+st-vue/public/*.mp4
+*.mov
+*.mp4

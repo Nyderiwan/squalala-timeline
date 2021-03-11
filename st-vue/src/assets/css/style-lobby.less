@@ -1,0 +1,211 @@
+@import "init.less";
+
+// LOGIN
+
+#lobby{
+	display: flex;
+	align-items:center;
+	justify-content: center;
+
+	&:before{
+		content:'';
+		display: block;
+		position:absolute;
+		z-index: -1;
+		top: 0;
+		right: 0;
+		bottom:0;
+		left: 0;
+		opacity: 0.25;
+		background: url('../assets/img/bg_lines.png') center repeat;
+		pointer-events:none;
+		user-select: none;
+	}
+
+	.lobby_inner{
+		width:90%;
+		max-width: 1000px;
+		border-radius: 10px;
+		overflow: hidden;
+
+		header{
+			width: 100%;		
+			border-bottom:solid 10px @purple;
+			display: flex;
+			justify-content: center;
+			align-items:center;
+			padding-bottom: 10px;
+
+			svg{
+				max-width: 80px;
+				height: auto;
+				fill:@purple;
+				margin-right: 30px;
+				animation:2s ease-in-out infinite alternate rotatebeer;
+			}
+
+			h2{
+				.londrina(4rem, @purple, 500);
+				margin: 0;
+				padding-top: 15px;
+			}
+		}
+
+		.container{
+			width: 100%;
+			padding:50px 50px 10px;	
+			background: @white;
+			position: relative;
+			z-index: 5;
+			min-height: 35vh;
+
+			display: flex;
+			flex-direction: column;
+			justify-content: space-between;
+
+			.logo_bg{
+				position:absolute;
+				top: 0;
+				right: 0;
+				bottom:0;
+				left: 0;
+				z-index: -1;
+				opacity: 0.15;
+				user-select: none;
+				pointer-events: none;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+
+				svg{
+					width: 400px;
+					height: auto;
+					fill:@purple;
+				}
+			}
+
+			.players_list{
+				display: flex;
+				flex-wrap: wrap;
+				justify-content: center;
+				margin: 0 50px;
+
+				.player_item{
+					display: flex;
+					justify-content: space-between;
+					align-items:center;
+					margin: 0 3px 10px;
+
+					.pseudo{
+						.oswald(2.25rem, @purple, 500);
+						text-transform: uppercase;
+						line-height: 1.25;
+						letter-spacing: -0.5px;
+						padding: 3px 8px 5px;
+						line-height: 1;
+					}
+
+					&:nth-child(even) .pseudo{
+						background: @purple;
+						color: @white;
+					}
+				}
+			}
+
+			.admin_settings{
+				display: flex;
+				align-items:center;
+				justify-content: center;
+
+				background: fade(@grey, 15%);
+				margin: 30px 0;
+				padding: 15px;
+				border-radius:4px;
+
+				.admin_bloc{
+					margin:0 10px;
+
+					label{
+						.oswald(1.125rem, @grey, 600);
+						margin-right: 8px;
+					}
+
+					select{
+						cursor: pointer;
+						background:@white;
+						padding:6px 20px 6px 10px;
+						.oswald(1.125rem, @grey);
+						text-transform:capitalize;
+					}
+				}
+
+				button.start_btn{
+					display: flex;
+					align-items: center;
+					margin: 0 auto;
+					padding:10px 20px;
+					cursor: pointer;					
+					.oswald(1.3rem, @white, 300);
+					line-height: 1;
+					background:@purple;
+					border-radius:5px;
+
+					.transition(0.35s);
+
+					&:hover{
+						background:@purpledark;
+					}
+				}
+			}
+
+
+			.copyUrl_btn{
+				position:relative;
+				padding:20px 0 30px;
+
+				button{
+					cursor: pointer;
+					display: flex;
+					align-items: center;
+					margin: 0 auto;
+					padding:10px 25px;
+					background:@green;
+					border-radius:15px;
+					.oswald(1.75rem, @white, 600);
+					// text-transform: uppercase;
+					text-shadow: 0 2px 2px fade(@greendark, 50%);
+					line-height: 1;
+					.transition(0.2s);
+					transform: translateY(-4px);
+					box-shadow:0 4px 1px 2px @greendark;
+
+					&:hover{
+						transform: translateY(-1px);
+						box-shadow:0 1px 2px 1px @greendark;
+					}
+				}
+
+				span{
+					position:absolute;
+					bottom:0;
+					left: 0;
+					right: 0;
+					display: block;
+					text-align: center;
+					.oswald(1.125rem, @grey);
+					user-select:none;
+					pointer-events:none;
+					.transition(0.35s);
+					opacity: 0;
+				}
+
+				&.copied span{
+					opacity: 1;
+				}
+			}
+
+
+		}
+	}
+
+}

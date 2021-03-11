@@ -1,0 +1,148 @@
+@import "init.less";
+
+// INIT
+
+	*, ::after, ::before {
+	    box-sizing: border-box;
+	}
+
+	body{
+		padding: 0;
+		margin: 0;
+	}
+
+	#app {
+		-webkit-font-smoothing: antialiased;
+		-moz-osx-font-smoothing: grayscale;
+		
+		height: 100vh;
+		width:  100vw;
+		padding:@margExt;
+
+		background-clip: content-box;
+		background-color: @green;
+		
+		overflow:hidden;
+		
+		&::before{
+			content: '';
+			display: block;
+			position: absolute;
+			z-index: -1;
+			top:0;
+			left: 0;
+			right: 0;
+			bottom:0;
+			user-select:none;
+			pointer-events:none;
+			background: linear-gradient(45deg, #ff0000, #ffcd00, #00ff20, #00dbff, #8d00ff, #ff0090);
+			background-size: 5000%;
+			animation: gradiantscroll 5s linear alternate infinite;
+		}
+
+		#app-inner{
+			width: 100%;
+			height: 100%;
+			position:relative;
+			perspective: 1500px;
+		}
+	}
+
+	button{
+		border:none;
+		&:active, &:focus{
+			outline: none;
+			border:none;
+		}
+	}
+
+	#app-inner > #login,
+	#app-inner > #lobby,
+	#app-inner > #game_app,
+	#app-inner > #scoreboard{
+		overflow: hidden;		
+		position:absolute;
+		top: 0;
+		right: 0;
+		bottom: 0;
+		left: 0;
+	}
+
+
+// VueJS Transition
+// ---------------
+	
+	// FADING > Video login
+		.fading-enter-active {
+			animation: fade-in 3s;
+		}
+		.fading-leave-active {
+			animation: fade-in 3s reverse;
+		}
+
+	// Fast Fade - copy link
+		.fade-fast-enter-active {
+			animation: fade-in 0.5s;
+		}
+		.fade-fast-leave-active {
+			animation: fade-in 2.5s reverse;
+		}
+
+		@keyframes fade-in {
+			from {
+				opacity: 0;
+			}
+			to{
+				opacity: 1;
+			}
+		}
+
+	// SQL FADE
+
+		.sql-fade-enter-from,
+		.sql-fade-leave-to{
+			opacity: 0;
+		}
+		.sql-fade-enter-to,
+		.sql-fade-leave-from{
+			opacity: 1;
+		}
+		.sql-fade-enter-active{
+			transition-delay: 0.5s;
+		}
+		.sql-fade-enter-active,
+		.sql-fade-leave-active {
+			.transition(1.5s);
+			transition-timing-function: cubic-bezier(0.000, 0.580, 0.250, 1.000);
+		}
+
+	// SQL Scoreboard Transition
+
+		.score-enter-from{
+			// opacity: 0;
+			// transform: rotate(-15deg) translate(-50%, -50%) translateZ(250px);
+			// background-color:green;
+		}
+		.score-leave-to{
+			// opacity: 0;
+			// transform: rotate(15deg) translate(-50%, -50%) translateZ(250px);
+			background-color:green;
+		}
+
+		.score-enter-to,
+		.score-leave-from{
+			// opacity: 1;
+			// transform: none;
+			background-color:green;
+		}
+
+		.score-enter-active{
+			// transition-delay: 0.5s;
+			background-color:green;
+		}
+		.score-enter-active,
+		.score-leave-active {
+			// .transition(0.75s);
+			// background-color:green;
+			// transition-timing-function: cubic-bezier(0.000, 0.580, 0.250, 1.000);
+		}

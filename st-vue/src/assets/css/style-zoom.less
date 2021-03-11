@@ -1,0 +1,102 @@
+@import "base.less";
+
+// ZOOM CARD
+//-----------------------------------------
+
+	#popup{
+		position:fixed;
+		z-index: 999;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom:0;		
+		background:rgba(0, 0, 0, 0.75);
+		cursor:url('../assets/img/close_cursor.png'), pointer;
+		
+		perspective: 1000px;
+		transform-style: preserve-3d;
+		transform-style: flat;
+
+		.polaroid{
+			pointer-events: none;
+			position: absolute;
+			top: 5%;
+			bottom: 5%;
+			left: 50%;
+			transform: translateX(-50%);
+			display: flex;
+			flex-direction: column;
+			justify-content: space-between;
+			align-items: center;
+			padding: 30px;
+			background: white;
+			border-radius: 3px;
+			width: 90%;
+			min-width: 25%;
+			max-width: 1500px;
+			transform-style: preserve-3d;
+			backface-visibility: hidden;
+
+			.image{
+				flex:auto;
+				max-width: 100%;
+				overflow: hidden;
+				text-align: center;			
+				// Z
+				transform: translateZ(25px);
+
+				img{
+					max-width: 100%;
+					height: 100%;
+					object-fit: contain;
+				}
+			}
+
+			.content{
+				text-align: center;
+
+				.name{
+					display: block;
+					margin: 0 0 10px;
+					.londrina(2.5rem, @grey);
+					text-align: center;
+					line-height: 1;
+					// Z
+					transform: translateZ(75px);
+				}		
+				
+				.date{
+					display: inline-block;
+					margin-bottom: 10px;
+					padding:5px 20px;
+					background:@grey;
+
+					.oswald(1.5rem, @white, 500);
+					text-transform: uppercase;
+					text-shadow: 0 1px 1px @black;
+					// Z
+					transform: translateZ(50px);
+				}
+			}
+
+
+			// Ombre
+			&:after{
+				content: " ";
+				position: absolute;
+				width: 120%;
+				height: 80%;
+				border-radius: 10%;
+				top: 30%;
+				left: 0;
+				transform: translateZ(-100px);
+				background: rgb(0 0 0 / 50%);
+				filter: blur(20px);
+			}
+
+			// Reveal card
+			&.reveal{
+			}
+
+		}
+	}
